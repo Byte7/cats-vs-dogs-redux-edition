@@ -11,20 +11,11 @@ from keras.layers.normalization import BatchNormalization
 from keras.utils.data_utils import get_file
 from keras.models import Sequential
 from keras.layers.core import Flatten, Dense, Dropout, Lambda
-<<<<<<< HEAD
-from keras.layers.convolutional import Conv2D, MaxPooling2D, ZeroPadding2D  # Conv2D: Keras2
-=======
 from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2D
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
 from keras.layers.pooling import GlobalAveragePooling2D
 from keras.optimizers import SGD, RMSprop, Adam
 from keras.preprocessing import image
 
-<<<<<<< HEAD
-
-vgg_mean = np.array([123.68, 116.779, 103.939], dtype=np.float32).reshape((3,1,1))
-def vgg_preprocess(x):
-=======
 # In case we are going to use the TensorFlow backend we need to explicitly set the Theano image ordering
 from keras import backend as K
 K.set_image_dim_ordering('th')
@@ -41,19 +32,14 @@ def vgg_preprocess(x):
         Returns:
             Image array (height x width x transposed_channels)
     """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
     x = x - vgg_mean
     return x[:, ::-1] # reverse axis rgb->bgr
 
 
 class Vgg16():
-<<<<<<< HEAD
-    """The VGG 16 Imagenet model"""
-=======
     """
         The VGG 16 Imagenet model
     """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
 
 
     def __init__(self):
@@ -63,13 +49,10 @@ class Vgg16():
 
 
     def get_classes(self):
-<<<<<<< HEAD
-=======
         """
             Downloads the Imagenet classes index file and loads it to self.classes.
             The file is downloaded only if it not already in the cache.
         """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         fname = 'imagenet_class_index.json'
         fpath = get_file(fname, self.FILE_PATH+fname, cache_subdir='models')
         with open(fpath) as f:
@@ -77,11 +60,6 @@ class Vgg16():
         self.classes = [class_dict[str(i)][1] for i in range(len(class_dict))]
 
     def predict(self, imgs, details=False):
-<<<<<<< HEAD
-        all_preds = self.model.predict(imgs)
-        idxs = np.argmax(all_preds, axis=1)
-        preds = [all_preds[i, idxs[i]] for i in range(len(idxs))]
-=======
         """
             Predict the labels of a set of images using the VGG16 model.
 
@@ -101,18 +79,11 @@ class Vgg16():
         # get the values of the highest probability for each image
         preds = [all_preds[i, idxs[i]] for i in range(len(idxs))]
         # get the label of the class with the highest probability for each image
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         classes = [self.classes[idx] for idx in idxs]
         return np.array(preds), idxs, classes
 
 
     def ConvBlock(self, layers, filters):
-<<<<<<< HEAD
-        model = self.model
-        for i in range(layers):
-            model.add(ZeroPadding2D((1, 1)))
-            model.add(Conv2D(filters, kernel_size=(3, 3), activation='relu'))  # Keras2
-=======
         """
             Adds a specified number of ZeroPadding and Covolution layers
             to the model, and a MaxPooling layer at the very end.
@@ -127,13 +98,10 @@ class Vgg16():
         for i in range(layers):
             model.add(ZeroPadding2D((1, 1)))
             model.add(Convolution2D(filters, 3, 3, activation='relu'))
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         model.add(MaxPooling2D((2, 2), strides=(2, 2)))
 
 
     def FCBlock(self):
-<<<<<<< HEAD
-=======
         """
             Adds a fully connected layer of 4096 neurons to the model with a
             Dropout of 0.5
@@ -141,22 +109,18 @@ class Vgg16():
             Args:   None
             Returns:   None
         """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         model = self.model
         model.add(Dense(4096, activation='relu'))
         model.add(Dropout(0.5))
 
 
     def create(self):
-<<<<<<< HEAD
-=======
         """
             Creates the VGG16 network achitecture and loads the pretrained weights.
 
             Args:   None
             Returns:   None
         """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         model = self.model = Sequential()
         model.add(Lambda(vgg_preprocess, input_shape=(3,224,224), output_shape=(3,224,224)))
 
@@ -176,21 +140,16 @@ class Vgg16():
 
 
     def get_batches(self, path, gen=image.ImageDataGenerator(), shuffle=True, batch_size=8, class_mode='categorical'):
-<<<<<<< HEAD
-=======
         """
             Takes the path to a directory, and generates batches of augmented/normalized data. Yields batches indefinitely, in an infinite loop.
 
             See Keras documentation: https://keras.io/preprocessing/image/
         """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         return gen.flow_from_directory(path, target_size=(224,224),
                 class_mode=class_mode, shuffle=shuffle, batch_size=batch_size)
 
 
     def ft(self, num):
-<<<<<<< HEAD
-=======
         """
             Replace the last layer of the model with a Dense (fully connected) layer of num neurons.
             Will also lock the weights of all layers except the new layer so that we only learn
@@ -201,7 +160,6 @@ class Vgg16():
             Returns:
                 None
         """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         model = self.model
         model.pop()
         for layer in model.layers: layer.trainable=False
@@ -209,10 +167,6 @@ class Vgg16():
         self.compile()
 
     def finetune(self, batches):
-<<<<<<< HEAD
-        self.ft(batches.num_classes)  # Keras 2.1
-        classes = list(iter(batches.class_indices))
-=======
         """
             Modifies the original VGG16 network architecture and updates self.classes for new training data.
             
@@ -227,42 +181,20 @@ class Vgg16():
         # eg. {'cats': 0, 'dogs': 1}
 
         # sort the class labels by index according to batches.class_indices and update model.classes
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         for c in batches.class_indices:
             classes[batches.class_indices[c]] = c
         self.classes = classes
 
 
     def compile(self, lr=0.001):
-<<<<<<< HEAD
-=======
         """
             Configures the model for training.
             See Keras documentation: https://keras.io/models/model/
         """
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
         self.model.compile(optimizer=Adam(lr=lr),
                 loss='categorical_crossentropy', metrics=['accuracy'])
 
 
-<<<<<<< HEAD
-    # Keras2
-    def fit_data(self, trn, labels,  val, val_labels,  nb_epoch=1, batch_size=64):
-        self.model.fit(trn, labels, epochs=nb_epoch,
-                validation_data=(val, val_labels), batch_size=batch_size)
-
-
-    # Keras2
-    def fit(self, batches, val_batches, batch_size, nb_epoch=1):
-        self.model.fit_generator(batches, steps_per_epoch=int(np.ceil(batches.samples/batch_size)), epochs=nb_epoch,
-                validation_data=val_batches, validation_steps=int(np.ceil(val_batches.samples/batch_size)))
-
-        
-    # Keras2
-    def test(self, path, batch_size=8):
-        test_batches = self.get_batches(path, shuffle=False, batch_size=batch_size, class_mode=None)
-        return test_batches, self.model.predict_generator(test_batches, int(np.ceil(test_batches.samples/batch_size)))
-=======
     def fit_data(self, trn, labels,  val, val_labels,  nb_epoch=1, batch_size=64):
         """
             Trains the model for a fixed number of epochs (iterations on a dataset).
@@ -297,4 +229,3 @@ class Vgg16():
         test_batches = self.get_batches(path, shuffle=False, batch_size=batch_size, class_mode=None)
         return test_batches, self.model.predict_generator(test_batches, test_batches.nb_sample)
 
->>>>>>> fb02df521384c7d037fec221ad4d57f718d717c2
